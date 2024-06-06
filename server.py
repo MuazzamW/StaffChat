@@ -1,12 +1,14 @@
 import socket
 import threading
+from commandConstants import commandConstants
 
 HEADER = 64
 PORT = 5050
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
-DISCONNECT_MESSAGE = "!DISCONNECT"
+
+CLIENTS = {}
 
 #globally keep track of all the clients
 #status of the people must be manually checked
@@ -20,13 +22,15 @@ server.bind(ADDR)
 #handled on its own thread
 def handle_client(conn, addr):
     print(f"[NEW CONNECTION] {addr} connected.")
+    #add client to client list
+    CLIENTS[addr] = conn
     connected = True
     while connected:
         msg_length = conn.recv(HEADER).decode(FORMAT)
         if msg_length:
             msg_length = int(msg_length)
             msg = conn.recv(msg_length).decode(FORMAT)
-            if msg == DISCONNECT_MESSAGE:
+            if msg == commandConstants.DISCONNECT_MSG.value:
                 connected = False
             print(f"[{addr}] {msg}")
     conn.close()
