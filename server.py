@@ -2,47 +2,38 @@ import socket
 import threading
 from commandConstants import commandConstants
 
-HEADER = 64
-PORT = 5050
-SERVER = socket.gethostbyname(socket.gethostname())
-ADDR = (SERVER, PORT)
-FORMAT = 'utf-8'
+class server:
+    def __init__(self):
+        self.__PORT = 5050
+        self.__IP = socket.gethostbyname(socket.gethostname())
+        self.__ADDR = (self.__IP, self.__PORT)
+        self.__FORMAT = 'utf-8'
+        self.__CLIENTS = {}
+        self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__server.bind(self.__ADDR)
+    
+    def handle_client(self, conn, addr):
+        print(f"[NEW CONNECTION] {addr} connected.")
+        #add client to client list
+        self.__CLIENTS[addr] = conn
+        connected = True
+        while connected:
+            msg_length = conn.recv(HEADER).decode(FORMAT)
+            if msg_length:
+                msg_length = int(msg_length)
+                msg = conn.recv(msg_length).decode(FORMAT)
+                if msg == commandConstants.DISCONNECT_MSG.value:
+                    connected = False
+                print(f"[{addr}] {msg}")
+        conn.close()
 
-CLIENTS = {}
-
-#globally keep track of all the clients
-#status of the people must be manually checked
-#to see if they are still connected
-#use a dictionary to store the connections
-#send a packet of data to the client and if they don't respond, then they are disconnected
-
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(ADDR)
-
-#handled on its own thread
-def handle_client(conn, addr):
-    print(f"[NEW CONNECTION] {addr} connected.")
-    #add client to client list
-    CLIENTS[addr] = conn
-    connected = True
-    while connected:
-        msg_length = conn.recv(HEADER).decode(FORMAT)
-        if msg_length:
-            msg_length = int(msg_length)
-            msg = conn.recv(msg_length).decode(FORMAT)
-            if msg == commandConstants.DISCONNECT_MSG.value:
-                connected = False
-            print(f"[{addr}] {msg}")
-    conn.close()
-
-def start():
-    server.listen()
-    print(f"[LISTENING] Server is listening on {SERVER}")
-    while True:
-        conn,addr = server.accept()
-        thread = threading.Thread(target=handle_client, args=(conn, addr))
-        thread.start()
-        print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
-
-print("[STARTING] server is starting...")
-start()
+    def start(self):
+        self.__server.listen()
+        print(f"[LISTENING] Server is listening on {self.__SERVER}")
+        while True:
+            conn,addr = self.__server.accept()
+            thread = threading.Thread(target=self.handle_client, args=(conn, addr))
+            #add the thread to the list of threads
+            
+            thread.start()
+            print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
