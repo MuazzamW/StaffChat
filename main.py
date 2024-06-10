@@ -16,4 +16,5 @@ while True:
         break
 
 capture.release()
-cv.destroyAllWindows()  
+cv.destroyAllWindows() 
+cv.imencode('.jpg', frame)[1].tofile('image.jpg') 
