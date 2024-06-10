@@ -1,10 +1,10 @@
 class User:
-    def __init__(self, userName, thread):
-        self.__username = userName
+    def __init__(self, id, thread):
+        self.__id = id
         self.__thread = thread
     
-    def getUserName(self):
-        return self.__username
+    def getUserID(self):
+        return self.__id
     
     def getThread(self):
         return self.__thread

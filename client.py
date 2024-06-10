@@ -1,5 +1,6 @@
 import socket
 from commandConstants import commandConstants
+import threading
 class client:
 
     #global variables
@@ -19,16 +20,28 @@ class client:
     def getAdd(self):
         return self.__addr
     
-    def send(self, msg):
-        message = msg.encode(client.FORMAT)
-        msg_length = len(message)
-        send_length = str(msg_length).encode(client.FORMAT)
-        send_length += b' ' * (client.HEADER - len(send_length))
-        self.__server.send(send_length)
-        self.__server.send(message)
+    def send(self):
+        while True:
+            try:
+                msg = input("Enter message: ")
+                message = msg.encode(client.FORMAT)
+                msg_length = len(message)
+                send_length = str(msg_length).encode(client.FORMAT)
+                send_length += b' ' * (client.HEADER - len(send_length))
+                self.__server.send(send_length)
+                self.__server.send(message)
+                break
+            except:
+                self.__connectToServer()
+                continue
 
     def receive(self):
-        pass
+        while True:
+            msg_length = self.__server.recv(client.HEADER).decode(client.FORMAT)
+            if msg_length:
+                msg_length = len(msg_length)
+                msg = self.__server.recv(msg_length).decode(client.FORMAT)
+                print(f"[{self.__addr}] {msg}")
     
     def handshake(self,addr):
         #send message to addr to ask for connection
@@ -41,6 +54,12 @@ class client:
     def __connectToServer(self):
         self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__server.connect(self.__addr)
-        
-        self.__server.send(self.__username)
-        
+
+        receive_thread = threading.Thread(target=self.receive)
+        receive_thread.start()
+
+        send_thread = threading.Thread(target=self.send)        
+        send_thread.start()
+
+        #self.send(self.__username)
+client = client("test")
