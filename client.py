@@ -17,7 +17,7 @@ class client:
         self.__friends = {}
         self.__server = None
 
-        self.__connectToServer(self.__serverAddr)
+        self.__connectToServer()
     def getAdd(self):
         return self.__addr
     
@@ -52,9 +52,9 @@ class client:
         send_length += b' ' * (client.HEADER - len(send_length))
 
     
-    def __connectToServer(self, serverAddr):
+    def __connectToServer(self):
         self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.__server.connect(serverAddr)
+        self.__server.connect(self.__serverAddr)
 
         receive_thread = threading.Thread(target=self.receive)
         receive_thread.start()
