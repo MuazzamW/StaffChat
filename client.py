@@ -7,11 +7,10 @@ class client:
     FORMAT = commandConstants.FORMAT.value
     HEADER = commandConstants.HEADER.value
 
-    def __init__(self,userName, severIp, serverPort):
+    def __init__(self,userName):
         self.__ip = socket.gethostbyname(socket.gethostname())
         self.__port = 5050
         self.__addr = (self.__ip, self.__port)
-        self.__serverAddr = (severIp, serverPort)
         self.__currentConnection = None
         self.__username = userName
         self.__friends = {}
@@ -54,7 +53,7 @@ class client:
     
     def __connectToServer(self):
         self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.__server.connect(self.__serverAddr)
+        self.__server.connect(self.__addr)
 
         receive_thread = threading.Thread(target=self.receive)
         receive_thread.start()
@@ -63,4 +62,4 @@ class client:
         send_thread.start()
 
         #self.send(self.__username)
-client = client("test", "172.16.16.69", 5050)
+client = client("test")
