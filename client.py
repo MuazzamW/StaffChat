@@ -17,20 +17,26 @@ class client:
         self.__server = None
 
         self.__connectToServer()
-    def getAdd(self):
+
+        #self.write(self.__username)
+    
+    def getAddr(self):
         return self.__addr
     
+    def write(self,msg):
+        message = msg.encode(client.FORMAT)
+        msg_length = len(message)
+        send_length = str(msg_length).encode(client.FORMAT)
+        send_length += b' ' * (client.HEADER - len(send_length))
+        self.__server.send(send_length)
+        self.__server.send(message)
+
+
     def send(self):
         while True:
             try:
                 msg = input("Enter message: ")
-                message = msg.encode(client.FORMAT)
-                msg_length = len(message)
-                send_length = str(msg_length).encode(client.FORMAT)
-                send_length += b' ' * (client.HEADER - len(send_length))
-                self.__server.send(send_length)
-                self.__server.send(message)
-                break
+                self.write(msg)
             except:
                 self.__connectToServer()
                 continue
@@ -62,4 +68,4 @@ class client:
         send_thread.start()
 
         #self.send(self.__username)
-client = client("test")
+client = client(f"{input('Enter username: ')}")

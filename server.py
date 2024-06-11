@@ -11,24 +11,32 @@ class server:
         self.__IP = socket.gethostbyname(socket.gethostname())
         self.__ADDR = (self.__IP, self.__PORT)
         self.__CLIENTS = {}
-        self.__threads = {}
         self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__server.bind(self.__ADDR)
         self.__id = 1
         self.__connectedManager = connectedManager()
+        self.lock = threading.Lock()
 
     def start(self):
         self.__server.listen()
         print(f"[LISTENING] Server is listening on {self.__server.getsockname()}")
         while True:
             conn,addr = self.__server.accept()
+            #receive username
             #thread = threading.Thread(target=self.handle_client, args=(conn, addr))
-            thread = clientHandler(conn, addr, self.__id) 
+             
+            with self.lock:
+                self.__connectedManager.addClient(User(self.__id, None, conn, None))
+            
+            thread = clientHandler(conn, addr, self.__id,self.__connectedManager,self.lock)
+            self.__connectedManager.getClient(self.__id).setThread(thread)
+
+            print(self.__connectedManager.returnClients())
             #add the thread to the list of threads
-            self.__CLIENTS[self.__id] = User(self.__id, thread)
-            thread.run()
-            print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
+            print(f"[ACTIVE CONNECTIONS] {threading.active_count()-1}")
             self.__id += 1
+            thread.start()
+            
 
     def stop(self):
         self.__server.close()
