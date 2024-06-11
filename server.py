@@ -8,7 +8,7 @@ from user import User
 class server:
     def __init__(self):
         self.__PORT = 5050
-        self.__IP = socket.gethostbyname(socket.gethostname())
+        self.__IP = socket.gethostbyname("localhost")
         self.__ADDR = (self.__IP, self.__PORT)
         self.__CLIENTS = {}
         self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

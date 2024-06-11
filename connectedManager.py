@@ -3,7 +3,7 @@ class connectedManager:
         self.__connectedClients = {}
     
     def addClient(self, user):
-        self.__connectedClients[user.getUserID()] = user.getConnection()
+        self.__connectedClients[user.getUserID()] = user
         
     def removeClient(self, userId):
         del self.__connectedClients[userId]

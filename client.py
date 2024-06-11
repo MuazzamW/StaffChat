@@ -8,7 +8,7 @@ class client:
     HEADER = commandConstants.HEADER.value
 
     def __init__(self,userName):
-        self.__ip = socket.gethostbyname(socket.gethostname())
+        self.__ip = socket.gethostbyname("localhost")
         self.__port = 5050
         self.__addr = (self.__ip, self.__port)
         self.__currentConnection = None
@@ -24,12 +24,16 @@ class client:
         return self.__addr
     
     def write(self,msg):
+        if msg == commandConstants.DISCONNECT_MSG.value:
+            self.__server.close()
+            exit()
         message = msg.encode(client.FORMAT)
         msg_length = len(message)
         send_length = str(msg_length).encode(client.FORMAT)
         send_length += b' ' * (client.HEADER - len(send_length))
         self.__server.send(send_length)
         self.__server.send(message)
+        
 
 
     def send(self):
