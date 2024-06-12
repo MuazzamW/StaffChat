@@ -51,7 +51,7 @@ class clientHandler(threading.Thread):
                             if msg_length:
                                 msg_length = int(msg_length)
                                 client_ip = self.__client_socket.recv(msg_length).decode(commandConstants.FORMAT.value)
-                                client_port = 12345
+                                client_port = 5000
                                 print(f"Client IP: {client_ip}")
                             self.clientConnection(client_ip, client_port)
                         case commandConstants.CLIENT_LIST_MSG.value:

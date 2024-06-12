@@ -10,6 +10,7 @@ class client:
     def __init__(self,userName):
         self.__ip = socket.gethostbyname(socket.gethostname())
         self.__port = 5050
+        self.__targetPort = 5000
         self.__addr = (self.__ip, self.__port)
         self.__currentConnection = None
         self.__username = userName
@@ -17,12 +18,40 @@ class client:
         self.__server = None
 
         self.__connectToServer()
+        self.__setUpTargetListener()
 
         #self.write(self.__username)
     
     def getAddr(self):
         return self.__addr
     
+    def __setUpTargetListener(self):
+        self.__targetListener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__targetListener.bind(self.getAddr())
+        self.__targetListener.listen()
+        self.__targetListenerThread = threading.Thread(target=self.__listenForTarget)
+        self.__targetListenerThread.start()
+    
+    def __listenForTarget(self):
+        while True:
+            conn, addr = self.__targetListener.accept()
+            print(f"Connection from {addr} has been established")
+            self.__currentConnection = conn
+            self.__currentConnectionThread = threading.Thread(target=self.__receiveFromTarget)
+            self.__currentConnectionThread.start()
+    
+    def __receiveFromTarget(self):
+        while True:
+            try:
+                msg_length = self.__currentConnection.recv(client.HEADER).decode(client.FORMAT)
+                if msg_length:
+                    msg_length = int(msg_length)
+                    msg = self.__currentConnection.recv(msg_length).decode(client.FORMAT)
+                    print(f"[{self.__addr}] {msg}")
+            except:
+                print("An error occurred or client disconnected")
+                break
+
     def write(self,msg):
         if msg == commandConstants.DISCONNECT_MSG.value:
             self.__server.close()
