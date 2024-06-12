@@ -26,7 +26,7 @@ class server:
             #thread = threading.Thread(target=self.handle_client, args=(conn, addr))
              
             with self.lock:
-                self.__connectedManager.addClient(User(self.__id, None, conn, None))
+                self.__connectedManager.addClient(User(self.__id, None, conn, addr, None))
             
             thread = clientHandler(conn, addr, self.__id,self.__connectedManager,self.lock)
             self.__connectedManager.getClient(self.__id).setThread(thread)

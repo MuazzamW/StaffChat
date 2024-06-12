@@ -8,7 +8,7 @@ class client:
     HEADER = commandConstants.HEADER.value
 
     def __init__(self,userName):
-        self.__ip = socket.gethostbyname("localhost")
+        self.__ip = socket.gethostbyname(socket.gethostname())
         self.__port = 5050
         self.__addr = (self.__ip, self.__port)
         self.__currentConnection = None
@@ -34,7 +34,9 @@ class client:
         self.__server.send(send_length)
         self.__server.send(message)
         
-
+    def sendUsername(self):
+        self.write(f"{commandConstants.USERNAME.value}")
+        self.write(f"{self.__username}")
 
     def send(self):
         while True:
@@ -42,16 +44,28 @@ class client:
                 msg = input("Enter message: ")
                 self.write(msg)
             except:
-                self.__connectToServer()
-                continue
+                print("An error occurred or client disconnected")
+                break
 
     def receive(self):
         while True:
-            msg_length = self.__server.recv(client.HEADER).decode(client.FORMAT)
-            if msg_length:
-                msg_length = len(msg_length)
-                msg = self.__server.recv(msg_length).decode(client.FORMAT)
-                print(f"[{self.__addr}] {msg}")
+            try:
+                msg_length = self.__server.recv(client.HEADER).decode(client.FORMAT)
+                if msg_length:
+                    msg_length = len(msg_length)
+                    msg = self.__server.recv(msg_length).decode(client.FORMAT)
+                    print(f"[{self.__addr}] {msg}")
+                
+                    match msg:
+                        case commandConstants.REQUEST_MSG.value:
+                            valid = False
+                            
+                        case _:
+                            print("client message received")
+
+            except:
+                print("An error occurred or client disconnected")
+                break
     
     def handshake(self,addr):
         #send message to addr to ask for connection
@@ -64,6 +78,7 @@ class client:
     def __connectToServer(self):
         self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__server.connect(self.__addr)
+        self.sendUsername()
 
         receive_thread = threading.Thread(target=self.receive)
         receive_thread.start()

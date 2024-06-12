@@ -8,7 +8,7 @@ class connectedManager:
     def removeClient(self, userId):
         del self.__connectedClients[userId]
 
-    def getClient(self, userId):
+    def getClientbyID(self, userId):
         return self.__connectedClients[userId]
 
     def getUserName(self, userId):
@@ -17,11 +17,14 @@ class connectedManager:
     def getThread(self, userId):
         return self.__connectedClients[userId].getThread()
 
-    def getConnectedClients(self):
-        return self.__connectedClients
-
-    def checkIfConnected(self, userId):
-        return userId in self.__connectedClients
-    
     def returnClients(self):
         return self.__connectedClients
+
+    def checkIfConnectedbyID(self, userId):
+        return userId in self.__connectedClients
+    
+    def checkIfConnectedByIP(self, ip):
+        for client in self.__connectedClients:
+            if self.__connectedClients[client].getAddress()[0] == ip:
+                return True
+        return False
