@@ -77,7 +77,7 @@ class client:
     
     def __connectToServer(self):
         self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.__server.connect(self.__addr)
+        self.__server.connect(("172.16.16.69", 5050))
         self.sendUsername()
 
         receive_thread = threading.Thread(target=self.receive)
