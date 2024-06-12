@@ -17,7 +17,6 @@ class clientHandler(threading.Thread):
     
     @dispatch(str)
     def sendMessage(self, msg):
-        print("entered sendMessage")
         message = msg.encode(commandConstants.FORMAT.value)
         msg_length = len(message)
         send_length = str(msg_length).encode(commandConstants.FORMAT.value)
@@ -47,14 +46,13 @@ class clientHandler(threading.Thread):
                         case commandConstants.DISCONNECT_MSG.value:
                             break
                         case commandConstants.REQUEST_MSG.value:   
-                            self.sendMessage("Connection accepted")
                             self.sendMessage("Enter the IP address of the client you want to connect to")
-                            msg_length = self.__client_socket.recv(commandConstants.HEADER.value).decode(commandConstants.FORMAT.value)
-                            if msg_length:
-                                msg_length = int(msg_length)
-                                client_ip = self.__client_socket.recv(msg_length).decode(commandConstants.FORMAT.value)
-                                client_port = 12345
-                            self.clientConnection(client_ip, client_port)
+                            # msg_length = self.__client_socket.recv(commandConstants.HEADER.value).decode(commandConstants.FORMAT.value)
+                            # if msg_length:
+                            #     msg_length = int(msg_length)
+                            #     client_ip = self.__client_socket.recv(msg_length).decode(commandConstants.FORMAT.value)
+                            #     client_port = 12345
+                            # self.clientConnection(client_ip, client_port)
                         case commandConstants.CLIENT_LIST_MSG.value:
                             self.sendMessage(f"Connected clients: {self.__connectedManager.returnClients()}")
                         case commandConstants.USERNAME.value:
