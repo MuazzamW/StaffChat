@@ -61,7 +61,7 @@ class client:
                             valid = False
                             
                         case _:
-                            print("client message received")
+                            pass
 
             except:
                 print("An error occurred or client disconnected")
