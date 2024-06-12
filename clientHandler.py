@@ -74,14 +74,10 @@ class clientHandler(threading.Thread):
 
 
     def clientConnection(self, clientIP, clientPort):
+        
         #check if client is already connected to server
         if self.__connectedManager.checkIfConnectedByIP(clientIP):
             #if client is connected, then they are active, meaning request to connect can be sent
             client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             client.connect((clientIP, clientPort))
-            self.sendMessage(f"{commandConstants.REQUEST_MSG.value} from {self.__userName}",client)
-
-        
-        self.sendMessage(f"{commandConstants.REQUEST_MSG.value}",client)
-        print(f"[CONNECTED] Connected to {clientIP}")
-        return client
+            self.sendMessage(f"{commandConstants.REQUEST_MSG.value} from {self.__userName}:{self.__client_address}",client)

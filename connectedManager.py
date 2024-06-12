@@ -28,3 +28,9 @@ class connectedManager:
             if self.__connectedClients[client].getAddress()[0] == ip:
                 return True
         return False
+    
+    def getUserNamebyIP(self, ip):
+        for client in self.__connectedClients:
+            if self.__connectedClients[client].getAddress()[0] == ip:
+                return self.__connectedClients[client].getUserName()
+        return None
