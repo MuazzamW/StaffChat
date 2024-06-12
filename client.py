@@ -18,7 +18,7 @@ class client:
         self.__server = None
 
         self.__connectToServer()
-        self.__setUpTargetListener()
+        #self.__setUpTargetListener()
 
         #self.write(self.__username)
     
