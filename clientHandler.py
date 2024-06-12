@@ -62,7 +62,7 @@ class clientHandler(threading.Thread):
                             if msg_length:
                                 msg_length = int(msg_length)
                                 self.__userName = self.__client_socket.recv(msg_length).decode(commandConstants.FORMAT.value)
-                            self.__connectedManager.getClient(self.__clientID).setUserName(self.__userName)
+                            self.__connectedManager.getClientbyID(self.__clientID).setUserName(self.__userName)
                             self.sendMessage(f"Username set to {self.__userName}")
                         case _:
                             self.sendMessage("Message received")
