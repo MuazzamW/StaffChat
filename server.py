@@ -8,7 +8,7 @@ from user import User
 class server:
     def __init__(self):
         self.__PORT = 5050
-        self.__IP = socket.gethostbyname("localhost")
+        self.__IP = socket.gethostbyname(socket.gethostname())
         self.__ADDR = (self.__IP, self.__PORT)
         self.__CLIENTS = {}
         self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -29,7 +29,7 @@ class server:
                 self.__connectedManager.addClient(User(self.__id, None, conn, addr, None))
             
             thread = clientHandler(conn, addr, self.__id,self.__connectedManager,self.lock)
-            self.__connectedManager.getClient(self.__id).setThread(thread)
+            self.__connectedManager.getClientbyID(self.__id).setThread(thread)
 
             print(self.__connectedManager.returnClients())
             #add the thread to the list of threads
