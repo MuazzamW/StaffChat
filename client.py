@@ -10,7 +10,7 @@ class client:
     def __init__(self,userName):
         self.__ip = socket.gethostbyname(socket.gethostname())
         self.__port = 5050
-        self.__targetPort = 5000
+        self.requestPort = 8000
         self.__addr = (self.__ip, self.__port)
         self.__currentConnection = None
         self.__username = userName
@@ -24,6 +24,7 @@ class client:
     
     def getAddr(self):
         return self.__addr
+
     
     def __setUpTargetListener(self):
         self.__targetListener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -106,7 +107,7 @@ class client:
     
     def __connectToServer(self):
         self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.__server.connect(("172.16.16.69", 5050))
+        self.__server.connect(("172.16.16.55", 5050))
         self.sendUsername()
 
         receive_thread = threading.Thread(target=self.receive)
