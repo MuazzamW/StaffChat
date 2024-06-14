@@ -87,8 +87,11 @@ class client:
                 
                     match msg:
                         case commandConstants.REQUEST_MSG.value:
-                            requestIP = self.__server.recv(client.HEADER).decode(client.FORMAT)
-                            self.handleRequest()
+                            requestMSG = self.__server.recv(client.HEADER).decode(client.FORMAT)
+                            print(requestMSG)
+                            requestIP = requestMSG.split(" ")[0]
+                            requestUserName = requestMSG.split(" ")[1]
+                            self.handleRequest(requestIP, requestUserName)
                         case commandConstants.ACCEPTED.value:
                             print("Request accepted")
                             #start video and audio stream
@@ -101,13 +104,12 @@ class client:
                 print("An error occurred or client disconnected")
                 break
 
-    def handleRequest(self):
-        requestIP, requestUserName = self.__server.recv(client.HEADER).decode(client.FORMAT).split(" ")
+    def handleRequest(self,requestIP,requestUserName):
         print(f"Request from {requestUserName} with IP {requestIP}")
         valid = True if input("Do you want to accept the request? (y/n): ") == "y" else False
 
         targetThread = self.__connectedManager.getClientbyIP(requestIP).getThread()
-        targetThread.sendClientMsg(commandConstants.VALID.value) if valid else targetThread.sendClientMsg(commandConstants.INVALID.value)
+        targetThread.sendClientMsg(commandConstants.ACCEPTED.value) if valid else targetThread.sendClientMsg(commandConstants.DENIED.value)
 
     
     def __connectToServer(self):

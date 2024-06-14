@@ -40,7 +40,7 @@ class server:
 
     def stop(self):
         self.__server.close()
-
+ 
 if __name__ == "__main__":
     server = server()
     server.start()
