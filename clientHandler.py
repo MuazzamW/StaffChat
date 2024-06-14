@@ -51,8 +51,8 @@ class clientHandler(threading.Thread):
                             if msg_length:
                                 msg_length = int(msg_length)
                                 client_ip = self.__client_socket.recv(msg_length).decode(commandConstants.FORMAT.value)
-                                client_port = 5000
-                                print(f"Client IP: {client_ip}")
+                                client_port = 6000
+                                self.clientConnection(client_ip, client_port)
                             self.clientConnection(client_ip, client_port)
                         case commandConstants.CLIENT_LIST_MSG.value:
                             self.sendMessage(f"Connected clients: {self.__connectedManager.returnClients()}")
@@ -77,7 +77,14 @@ class clientHandler(threading.Thread):
         
         #check if client is already connected to server
         if self.__connectedManager.checkIfConnectedByIP(clientIP):
+            print(f"client connected")
+            targetThread = self.__connectedManager.getClientbyIP(clientIP).getThread()
+            targetThread.sendClientMsg(f"{commandConstants.REQUEST_MSG.value} from {self.__userName}:{self.__client_address}")
             #if client is connected, then they are active, meaning request to connect can be sent
-            client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            client.connect((clientIP, clientPort))
-            self.sendMessage(f"{commandConstants.REQUEST_MSG.value} from {self.__userName}:{self.__client_address}",client)
+        else:
+            #if client is not connected, then they are inactive, meaning request to connect cannot be sent
+            self.sendMessage("Client is not connected")
+            return
+    
+    def sendClientMsg(self, msg):
+        return self.sendMessage(msg)

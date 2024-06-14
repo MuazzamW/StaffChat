@@ -10,6 +10,12 @@ class connectedManager:
 
     def getClientbyID(self, userId):
         return self.__connectedClients[userId]
+    
+    def getClientbyIP(self, ip):
+        for client in self.__connectedClients:
+            if self.__connectedClients[client].getAddress()[0] == ip:
+                return self.__connectedClients[client]
+        return None
 
     def getUserName(self, userId):
         return self.__connectedClients[userId].getUserName()
