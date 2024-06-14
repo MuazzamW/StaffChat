@@ -15,14 +15,11 @@ class client:
         self.__addr = (self.__ip, self.__port)
         self.__currentConnection = None
         self.__username = userName
-        self.__friends = {}
         self.__server = None
         self.__connectedManager = connectedManager()
 
         self.__connectToServer()
-        #self.__setUpTargetListener()
-
-        #self.write(self.__username)
+        #self.__setUpTargetListener()ping 
     
     def getAddr(self):
         return self.__addr
