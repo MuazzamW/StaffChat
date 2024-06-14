@@ -10,17 +10,13 @@ class client:
     def __init__(self,userName):
         self.__ip = socket.gethostbyname(socket.gethostname())
         self.__port = 5050
-        self.__targetPort = 5000
         self.__addr = (self.__ip, self.__port)
         self.__currentConnection = None
         self.__username = userName
-        self.__friends = {}
         self.__server = None
 
         self.__connectToServer()
-        #self.__setUpTargetListener()
-
-        #self.write(self.__username)
+        #self.__setUpTargetListener()ping 
     
     def getAddr(self):
         return self.__addr
