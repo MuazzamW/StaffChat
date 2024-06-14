@@ -1,6 +1,7 @@
 import socket
 from commandConstants import commandConstants
 import threading
+from connectedManager import connectedManager
 class client:
 
     #global variables
@@ -16,6 +17,7 @@ class client:
         self.__username = userName
         self.__friends = {}
         self.__server = None
+        self.__connectedManager = connectedManager()
 
         self.__connectToServer()
         #self.__setUpTargetListener()
@@ -88,21 +90,27 @@ class client:
                 
                     match msg:
                         case commandConstants.REQUEST_MSG.value:
-                            valid = False
-                            
+                            requestIP = self.__server.recv(client.HEADER).decode(client.FORMAT)
+                            self.handleRequest()
+                        case commandConstants.ACCEPTED.value:
+                            print("Request accepted")
+                            #start video and audio stream
+                        case commandConstants.DENIED.value:
+                            print("Request denied")
                         case _:
                             pass
 
             except:
                 print("An error occurred or client disconnected")
                 break
-    
-    def handshake(self,addr):
-        #send message to addr to ask for connection
-        msg = commandConstants.REQUEST_MSG.value
-        msg_length = len(msg)
-        send_length = str(msg_length).encode(self.FORMAT)
-        send_length += b' ' * (client.HEADER - len(send_length))
+
+    def handleRequest(self):
+        requestIP, requestUserName = self.__server.recv(client.HEADER).decode(client.FORMAT).split(" ")
+        print(f"Request from {requestUserName} with IP {requestIP}")
+        valid = True if input("Do you want to accept the request? (y/n): ") == "y" else False
+
+        targetThread = self.__connectedManager.getClientbyIP(requestIP).getThread()
+        targetThread.sendClientMsg(commandConstants.VALID.value) if valid else targetThread.sendClientMsg(commandConstants.INVALID.value)
 
     
     def __connectToServer(self):

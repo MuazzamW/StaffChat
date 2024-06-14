@@ -33,6 +33,9 @@ class clientHandler(threading.Thread):
         send_length += b' ' * (commandConstants.HEADER.value - len(send_length))
         clientSocket.send(send_length)
         clientSocket.send(message)
+    
+    def getUserName(self):
+        return self.__userName
 
     def run(self):
         while True:
@@ -79,7 +82,8 @@ class clientHandler(threading.Thread):
         if self.__connectedManager.checkIfConnectedByIP(clientIP):
             print(f"client connected")
             targetThread = self.__connectedManager.getClientbyIP(clientIP).getThread()
-            targetThread.sendClientMsg(f"{commandConstants.REQUEST_MSG.value} from {self.__userName}:{self.__client_address}")
+            targetThread.sendClientMsg(f"{commandConstants.REQUEST_MSG.value}")
+            targetThread.sendClientMsg((self.__client_address,self.__userName))
             #if client is connected, then they are active, meaning request to connect can be sent
         else:
             #if client is not connected, then they are inactive, meaning request to connect cannot be sent
