@@ -88,8 +88,8 @@ class client:
                     match msg:
                         case commandConstants.REQUEST_MSG.value:
                             print("request received")
-                            # requestMSG = self.__server.recv(client.HEADER).decode(client.FORMAT)
-                            # print(requestMSG)
+                            requestMSG = self.__server.recv(client.HEADER).decode(client.FORMAT)
+                            print(requestMSG)
                             # requestIP = requestMSG.split(" ")[0]
                             # requestUserName = requestMSG.split(" ")[1]
                             # self.handleRequest(requestIP, requestUserName)
