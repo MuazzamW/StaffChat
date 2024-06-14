@@ -83,8 +83,8 @@ class clientHandler(threading.Thread):
             print(f"client connected")
             targetThread = self.__connectedManager.getClientbyIP(clientIP).getThread()
             targetThread.sendClientMsg(f"{commandConstants.REQUEST_MSG.value}")
-            print(f"client address and usernamel: {(self.__client_address,self.__userName)}")
-            targetThread.sendClientMsg(f"{(self.__client_address,self.__userName)}")
+            #print(f"client address and usernamel: {(self.__client_address,self.__userName)}")
+            #targetThread.sendClientMsg(f"{(self.__client_address,self.__userName)}")
             #if client is connected, then they are active, meaning request to connect can be sent
         else:
             #if client is not connected, then they are inactive, meaning request to connect cannot be sent

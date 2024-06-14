@@ -87,11 +87,12 @@ class client:
                 
                     match msg:
                         case commandConstants.REQUEST_MSG.value:
-                            requestMSG = self.__server.recv(client.HEADER).decode(client.FORMAT)
-                            print(requestMSG)
-                            requestIP = requestMSG.split(" ")[0]
-                            requestUserName = requestMSG.split(" ")[1]
-                            self.handleRequest(requestIP, requestUserName)
+                            print("request received")
+                            # requestMSG = self.__server.recv(client.HEADER).decode(client.FORMAT)
+                            # print(requestMSG)
+                            # requestIP = requestMSG.split(" ")[0]
+                            # requestUserName = requestMSG.split(" ")[1]
+                            # self.handleRequest(requestIP, requestUserName)
                         case commandConstants.ACCEPTED.value:
                             print("Request accepted")
                             #start video and audio stream
