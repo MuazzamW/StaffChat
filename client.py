@@ -90,11 +90,18 @@ class client:
                     match msg:
                         case commandConstants.REQUEST_MSG.value:
                             print("request received")
-                            requestMSG = self.__server.recv(client.HEADER).decode(client.FORMAT)
-                            print(requestMSG)
-                            # requestIP = requestMSG.split(" ")[0]
-                            # requestUserName = requestMSG.split(" ")[1]
-                            # self.handleRequest(requestIP, requestUserName)
+                            json_length = self.__server.recv(client.HEADER).decode(client.FORMAT)
+                            if json_length:
+                                json_length = int(json_length)
+                                json_msg = self.__server.recv(json_length).decode(client.FORMAT)
+                                # Parse the JSON string into a Python dictionary
+                                request_info = json.loads(json_msg)
+                                # Extract address and username from the dictionary
+                                requestIP = request_info['address']
+                                requestUserName = request_info['username']
+                                print(f"Request IP: {requestIP}, Request Username: {requestUserName}")
+                                # Now you can handle the request with the IP and username
+                                # self.handleRequest(requestIP, requestUserName)
                         case commandConstants.ACCEPTED.value:
                             print("Request accepted")
                             #start video and audio stream

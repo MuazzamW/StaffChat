@@ -3,6 +3,7 @@ import socket
 from commandConstants import commandConstants
 from connectedManager import connectedManager
 from  multipledispatch import dispatch
+import json
 class clientHandler(threading.Thread):
     def __init__(self, conn, addr, clientID, connectedManager, lock):
         super().__init__()
@@ -83,7 +84,13 @@ class clientHandler(threading.Thread):
             print(f"client connected")
             clientSocket = self.__connectedManager.getConnectionbyIP(clientIP)
             self.sendMessage(f"{commandConstants.REQUEST_MSG.value}", clientSocket)
-            self.sendMessage(f"{(self.__client_address,self.__userName)}", clientSocket)
+            
+            client_info = json.dumps({
+                "address": self.__client_address,
+                "username": self.__userName
+            })
+
+            self.sendMessage(client_info, clientSocket)
             
             #if client is connected, then they are active, meaning request to connect can be sent
         else:
