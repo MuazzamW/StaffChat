@@ -40,3 +40,9 @@ class connectedManager:
             if self.__connectedClients[client].getAddress()[0] == ip:
                 return self.__connectedClients[client].getUserName()
         return None
+    
+    def getConnectionbyIP(self, ip):
+        for client in self.__connectedClients:
+            if self.__connectedClients[client].getAddress()[0] == ip:
+                return self.__connectedClients[client].getConnection()
+        return None

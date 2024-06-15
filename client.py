@@ -72,6 +72,8 @@ class client:
             try:
                 msg = input("Enter message: ")
                 self.write(msg)
+                if msg == commandConstants.DISCONNECT_MSG.value:
+                    break
             except:
                 print("An error occurred or client disconnected")
                 break
