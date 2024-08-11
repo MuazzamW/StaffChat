@@ -4,36 +4,18 @@ from commandConstants import commandConstants
 from connectedManager import connectedManager
 from  multipledispatch import dispatch
 import json
+import queue
 class clientHandler(threading.Thread):
-    def __init__(self, conn, addr, clientID, connectedManager, lock):
+    def __init__(self, conn, addr, clientID, connectedManager):
         super().__init__()
         self.__client_socket = conn
         self.__client_address = addr
         self.__clientID = clientID
-        self.__lock = lock
         self.__connected = True
         self.__connectedManager = connectedManager
-        self.__userName = self.__connectedManager.getUserName(self.__clientID) 
+        self.__userName = self.__connectedManager.getUserName(self.__clientID)
         print(f"[NEW CONNECTION] {self.__client_address} connected.")
     
-    @dispatch(str)
-    def sendMessage(self, msg):
-        message = msg.encode(commandConstants.FORMAT.value)
-        msg_length = len(message)
-        send_length = str(msg_length).encode(commandConstants.FORMAT.value)
-        send_length += b' ' * (commandConstants.HEADER.value - len(send_length))
-        self.__client_socket.send(send_length)
-        self.__client_socket.send(message)
-    
-    @dispatch(str, socket.socket)
-    def sendMessage(self, msg, clientSocket):
-        print("entered sendMessage 2")
-        message = msg.encode(commandConstants.FORMAT.value)
-        msg_length = len(message)
-        send_length = str(msg_length).encode(commandConstants.FORMAT.value)
-        send_length += b' ' * (commandConstants.HEADER.value - len(send_length))
-        clientSocket.send(send_length)
-        clientSocket.send(message)
     
     def getUserName(self):
         return self.__userName
@@ -76,7 +58,6 @@ class clientHandler(threading.Thread):
                 break
         self.__client_socket.close()
 
-
     def clientConnection(self, clientIP, clientPort):
         
         #check if client is already connected to  server
@@ -92,6 +73,8 @@ class clientHandler(threading.Thread):
 
             self.sendMessage(client_info, clientSocket)
             
+            answer = self.__client_socket.recv(commandConstants.HEADER.value).decode(commandConstants.FORMAT.value)
+
             #if client is connected, then they are active, meaning request to connect can be sent
         else:
             #if client is not connected, then they are inactive, meaning request to connect cannot be sent

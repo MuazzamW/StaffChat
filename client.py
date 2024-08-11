@@ -3,11 +3,14 @@ from commandConstants import commandConstants
 import threading
 from connectedManager import connectedManager
 import json
+from inputThread import inputThread
+import queue
 class client:
 
     #global variables
     FORMAT = commandConstants.FORMAT.value
     HEADER = commandConstants.HEADER.value
+    #input_queue = Queue()
 
     def __init__(self,userName):
         self.__ip = socket.gethostbyname(socket.gethostname())
@@ -18,41 +21,16 @@ class client:
         self.__username = userName
         self.__server = None
         self.__connectedManager = connectedManager()
+        self.__message_queue = queue.Queue()
+        self.__input_ready_event = threading.Event()
 
         self.__connectToServer()
         #self.__setUpTargetListener()ping 
     
     def getAddr(self):
         return self.__addr
-
     
-    def __setUpTargetListener(self):
-        self.__targetListener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.__targetListener.bind(self.getAddr())
-        self.__targetListener.listen()
-        self.__targetListenerThread = threading.Thread(target=self.__listenForTarget)
-        self.__targetListenerThread.start()
     
-    def __listenForTarget(self):
-        while True:
-            conn, addr = self.__targetListener.accept()
-            print(f"Connection from {addr} has been established")
-            self.__currentConnection = conn
-            self.__currentConnectionThread = threading.Thread(target=self.__receiveFromTarget)
-            self.__currentConnectionThread.start()
-    
-    def __receiveFromTarget(self):
-        while True:
-            try:
-                msg_length = self.__currentConnection.recv(client.HEADER).decode(client.FORMAT)
-                if msg_length:
-                    msg_length = int(msg_length)
-                    msg = self.__currentConnection.recv(msg_length).decode(client.FORMAT)
-                    print(f"[{self.__addr}] {msg}")
-            except:
-                print("An error occurred or client disconnected")
-                break
-
     def write(self,msg):
         if msg == commandConstants.DISCONNECT_MSG.value:
             self.__server.close()
@@ -98,11 +76,12 @@ class client:
                                 # Parse the JSON string into a Python dictionary
                                 request_info = json.loads(json_msg)
                                 # Extract address and username from the dictionary
-                                requestIP = request_info['address']
+                                requestIP = request_info['address'][0]
                                 requestUserName = request_info['username']
-                                print(f"Request IP: {requestIP}, Request Username: {requestUserName}")
+                                #print(f"Request IP: {requestIP}, Request Username: {requestUserName}")
+
                                 # Now you can handle the request with the IP and username
-                                # self.handleRequest(requestIP, requestUserName)
+                                self.handleRequest(requestIP, requestUserName)
                         case commandConstants.ACCEPTED.value:
                             print("Request accepted")
                             #start video and audio stream
@@ -117,15 +96,20 @@ class client:
 
     def handleRequest(self,requestIP,requestUserName):
         print(f"Request from {requestUserName} with IP {requestIP}")
-        valid = True if input("Do you want to accept the request? (y/n): ") == "y" else False
+        valid = input("Do you want to accept the request? (y/n): ")
+        
+        #self.__inputThread.getInput("Do you want to accept the request? (y/n): ")
+
+        valid = True if valid == "y" else False
+        print(valid)
 
         targetThread = self.__connectedManager.getClientbyIP(requestIP).getThread()
-        targetThread.sendClientMsg(commandConstants.ACCEPTED.value) if valid else targetThread.sendClientMsg(commandConstants.DENIED.value)
+        targetThread.sendClientMsg(f"{commandConstants.ACCEPTED.value} from {self.__addr}") if valid else targetThread.sendClientMsg(commandConstants.DENIED.value)
 
     
     def __connectToServer(self):
         self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.__server.connect(("172.16.16.55", 5050))
+        self.__server.connect(("172.16.16.56", 5050))
         self.sendUsername()
 
         receive_thread = threading.Thread(target=self.receive)
@@ -134,5 +118,5 @@ class client:
         send_thread = threading.Thread(target=self.send)        
         send_thread.start()
 
-        #self.send(self.__username)
+        self.sendUsername()
 client = client(f"{input('Enter username: ')}")

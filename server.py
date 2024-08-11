@@ -15,26 +15,24 @@ class server:
         self.__server.bind(self.__ADDR)
         self.__id = 1
         self.__connectedManager = connectedManager()
-        self.lock = threading.Lock()
 
     def start(self):
         self.__server.listen()
         print(f"[LISTENING] Server is listening on {self.__server.getsockname()}")
         while True:
             conn,addr = self.__server.accept()
-            #receive username
-            #thread = threading.Thread(target=self.handle_client, args=(conn, addr))
              
-            with self.lock:
-                self.__connectedManager.addClient(User(self.__id, None, conn, addr, None))
+
+            self.__connectedManager.addClient(User(self.__id, None, conn, addr, None))
             
-            thread = clientHandler(conn, addr, self.__id,self.__connectedManager,self.lock)
+            thread = clientHandler(conn, addr, self.__id,self.__connectedManager)
             self.__connectedManager.getClientbyID(self.__id).setThread(thread)
 
             print(self.__connectedManager.returnClients())
             #add the thread to the list of threads
             print(f"[ACTIVE CONNECTIONS] {threading.active_count()-1}")
             self.__id += 1
+            thread.daemon = True
             thread.start()
             
 
