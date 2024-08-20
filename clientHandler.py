@@ -6,8 +6,9 @@ from  multipledispatch import dispatch
 import json
 import queue
 class clientHandler(threading.Thread):
-    def __init__(self, conn, addr, clientID, connectedManager):
+    def __init__(self, server, conn, addr, clientID, connectedManager):
         super().__init__()
+        self.__server = server
         self.__client_socket = conn
         self.__client_address = addr
         self.__clientID = clientID
@@ -17,6 +18,14 @@ class clientHandler(threading.Thread):
         print(f"[NEW CONNECTION] {self.__client_address} connected.")
     
     
+    def sendMessage(self, msg):
+        message = msg.encode(commandConstants.FORMAT.value)
+        msg_length = len(message)
+        send_length = str(msg_length).encode(commandConstants.FORMAT.value)
+        send_length += b' ' * (commandConstants.HEADER.value - len(send_length))
+        self.__client_socket.send(send_length)
+        self.__client_socket.send(message)
+
     def getUserName(self):
         return self.__userName
 
@@ -36,10 +45,15 @@ class clientHandler(threading.Thread):
                             msg_length = self.__client_socket.recv(commandConstants.HEADER.value).decode(commandConstants.FORMAT.value)
                             if msg_length:
                                 msg_length = int(msg_length)
-                                client_ip = self.__client_socket.recv(msg_length).decode(commandConstants.FORMAT.value)
-                                client_port = 6000
-                                self.clientConnection(client_ip, client_port)
-                            self.clientConnection(client_ip, client_port)
+                                target_ip = self.__client_socket.recv(msg_length).decode(commandConstants.FORMAT.value)
+                                #check if client is already connected to  server
+                                if self.__connectedManager.checkIfConnectedByIP(target_ip):
+                                    print(f"client connected")
+                                    self.clientConnection(target_ip)                              
+                                else:
+                                    #if client is not connected, then they are inactive, meaning request to connect cannot be sent
+                                    self.sendMessage("Client is not connected")
+                                    return
                         case commandConstants.CLIENT_LIST_MSG.value:
                             self.sendMessage(f"Connected clients: {self.__connectedManager.returnClients()}")
                         case commandConstants.USERNAME.value:
@@ -58,28 +72,15 @@ class clientHandler(threading.Thread):
                 break
         self.__client_socket.close()
 
-    def clientConnection(self, clientIP, clientPort):
+    def clientConnection(self, target_ip):
         
-        #check if client is already connected to  server
-        if self.__connectedManager.checkIfConnectedByIP(clientIP):
-            print(f"client connected")
-            clientSocket = self.__connectedManager.getConnectionbyIP(clientIP)
-            self.sendMessage(f"{commandConstants.REQUEST_MSG.value}", clientSocket)
-            
-            client_info = json.dumps({
-                "address": self.__client_address,
-                "username": self.__userName
-            })
+        client_info = json.dumps({
+            "address": self.__client_address,
+            "username": self.__userName,
+            "message" : f"Client {self.__userName} wants to connect to you"
+        })
 
-            self.sendMessage(client_info, clientSocket)
-            
-            answer = self.__client_socket.recv(commandConstants.HEADER.value).decode(commandConstants.FORMAT.value)
-
-            #if client is connected, then they are active, meaning request to connect can be sent
-        else:
-            #if client is not connected, then they are inactive, meaning request to connect cannot be sent
-            self.sendMessage("Client is not connected")
-            return
+        self.__server.clientRequest(self.__client_address, target_ip, client_info)
     
     def sendClientMsg(self, msg):
         return self.sendMessage(msg)
