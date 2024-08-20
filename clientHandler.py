@@ -49,6 +49,7 @@ class clientHandler(threading.Thread):
                                 #check if client is already connected to  server
                                 if self.__connectedManager.checkIfConnectedByIP(target_ip):
                                     print(f"client connected")
+                                    #initiate handshake with target client
                                     self.clientConnection(target_ip)                              
                                 else:
                                     #if client is not connected, then they are inactive, meaning request to connect cannot be sent
@@ -77,7 +78,7 @@ class clientHandler(threading.Thread):
         client_info = json.dumps({
             "address": self.__client_address,
             "username": self.__userName,
-            "message" : f"Client {self.__userName} wants to connect to you"
+            "message" : f"Client {self.__userName} would like to initate connection"
         })
 
         self.__server.clientRequest(self.__client_address, target_ip, client_info)
