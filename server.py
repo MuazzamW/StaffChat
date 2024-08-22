@@ -4,6 +4,7 @@ from commandConstants import commandConstants
 from connectedManager import connectedManager
 from clientHandler import clientHandler
 from user import User
+import time
 
 class server:
     def __init__(self):
@@ -20,20 +21,13 @@ class server:
         self.__server.listen()
         print(f"[LISTENING] Server is listening on {self.__server.getsockname()}")
         while True:
-            conn,addr = self.__server.accept()
-             
-
-            self.__connectedManager.addClient(User(self.__id, None, conn, addr, None))
-            
-            thread = clientHandler(self,conn, addr, self.__id,self.__connectedManager)
-            self.__connectedManager.getClientbyID(self.__id).setThread(thread)
-
-            print(self.__connectedManager.returnClients())
-            #add the thread to the list of threads
-            print(f"[ACTIVE CONNECTIONS] {threading.active_count()}")
+            conn, addr = self.__server.accept()
+            user = User(self.__id, None, conn, addr, None)
+            self.__connectedManager.addClient(user)
+            client_handler = clientHandler(self.__server, conn, addr, self.__id, self.__connectedManager)
+            client_thread = threading.Thread(target=client_handler.run)
+            client_thread.start()
             self.__id += 1
-            thread.daemon = True
-            thread.start()
 
     def sendMessage(self, client_ip, target_ip, msg):
         #send message to target by using the target thread's ip
