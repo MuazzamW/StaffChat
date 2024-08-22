@@ -1,4 +1,9 @@
 {
-    "server_host": "localhost",
-    "server_port": 12345
+    "server-config": [
+        {
+            "server_host": "172.16.16.56",
+            "server_port": 5050
+        }
+    ]
 }
+

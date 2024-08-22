@@ -14,21 +14,17 @@ class client:
 
     def __init__(self,userName):
         self.__ip = socket.gethostbyname(socket.gethostname())
-        self.__port = 5050
-        self.requestPort = 8000
-        self.__addr = (self.__ip, self.__port)
+
         self.__currentConnection = None
         self.__username = userName
         self.__server = None
         self.__connectedManager = connectedManager()
-        self.__message_queue = queue.Queue()
-        self.__input_ready_event = threading.Event()
 
         self.__connectToServer()
         #self.__setUpTargetListener()ping 
     
     def getAddr(self):
-        return self.__addr
+        return self.__ip
     
     
     def write(self,msg):
@@ -53,7 +49,9 @@ class client:
                 self.write(msg)
                 if msg == commandConstants.DISCONNECT_MSG.value:
                     break
-            except:
+            except Exception as e:
+                #print error
+                print(e)
                 print("An error occurred or client disconnected")
                 break
 
@@ -64,9 +62,11 @@ class client:
                 if msg_length:
                     msg_length = len(msg_length)
                     msg = self.__server.recv(msg_length).decode(client.FORMAT)
-                    print(f"[{self.__addr}] {msg}")
+                    print(f"[{self.__ip}] {msg}")
                 
                     match msg:
+                        case commandConstants.PING_MSG.value:
+                            self.write(commandConstants.PONG_MSG.value)
                         case commandConstants.REQUEST_MSG.value:
                             print("request received")
                             json_length = self.__server.recv(client.HEADER).decode(client.FORMAT)
@@ -90,7 +90,8 @@ class client:
                         case _:
                             pass
 
-            except:
+            except Exception as e:
+                print(e)
                 print("An error occurred or client disconnected")
                 break
 
@@ -104,12 +105,19 @@ class client:
         print(valid)
 
         targetThread = self.__connectedManager.getClientbyIP(requestIP).getThread()
-        targetThread.sendClientMsg(f"{commandConstants.ACCEPTED.value} from {self.__addr}") if valid else targetThread.sendClientMsg(commandConstants.DENIED.value)
+        #targetThread.sendClientMsg(f"{commandConstants.ACCEPTED.value} from {self.__addr}") if valid else targetThread.sendClientMsg(commandConstants.DENIED.value)
 
     
     def __connectToServer(self):
         self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.__server.connect(("172.16.16.56", 5050))
+
+        #read from json file
+        config = json.load(open("config.json"))
+        server_ip = config["server-config"][0]["server_host"]
+        server_port = config["server-config"][0]["server_port"]
+
+
+        self.__server.connect((server_ip,server_port))
         self.sendUsername()
 
         receive_thread = threading.Thread(target=self.receive)
