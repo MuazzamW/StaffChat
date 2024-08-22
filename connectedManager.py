@@ -24,7 +24,9 @@ class connectedManager:
         return self.__connectedClients[userId].getThread()
 
     def returnClients(self):
-        return self.__connectedClients
+        #print out client details for each client
+        for client in self.__connectedClients:
+            print(f"Client ID: {self.__connectedClients[client].getUserID()} \nUsername: {self.__connectedClients[client].getUserName()} \nIP: {self.__connectedClients[client].getAddress()[0]} \nPort: {self.__connectedClients[client].getAddress()[1]}") 
 
     def checkIfConnectedbyID(self, userId):
         return userId in self.__connectedClients
