@@ -4,7 +4,8 @@ import threading
 from connectedManager import connectedManager
 import json
 from inputThread import inputThread
-import queue
+import time
+from clientGUI import clientGUI
 class client:
 
     #global variables
@@ -18,15 +19,18 @@ class client:
         self.__currentConnection = None
         self.__username = userName
         self.__server = None
+        self.__pingServer = None
         self.__connectedManager = connectedManager()
-
+        self.__gui = None
         self.__connectToServer()
         #self.__setUpTargetListener()ping 
     
     def getAddr(self):
         return self.__ip
     
-    
+    def getServer(self):
+        return self.__server
+
     def write(self,msg):
         if msg == commandConstants.DISCONNECT_MSG.value:
             self.__server.close()
@@ -35,8 +39,12 @@ class client:
         msg_length = len(message)
         send_length = str(msg_length).encode(client.FORMAT)
         send_length += b' ' * (client.HEADER - len(send_length))
-        self.__server.send(send_length)
-        self.__server.send(message)
+        if msg == commandConstants.PONG_MSG.value:
+            self.__pingServer.send(send_length)
+            self.__pingServer.send(message)
+        else:
+            self.__server.send(send_length)
+            self.__server.send(message)
         
     def sendUsername(self):
         self.write(f"{commandConstants.USERNAME.value}")
@@ -60,9 +68,9 @@ class client:
             try:
                 msg_length = self.__server.recv(client.HEADER).decode(client.FORMAT)
                 if msg_length:
-                    msg_length = len(msg_length)
+                    msg_length = int(msg_length)
                     msg = self.__server.recv(msg_length).decode(client.FORMAT)
-                    print(f"[{self.__ip}] {msg}")
+                    clientGUI.receive_message(msg)
                 
                     match msg:
                         case commandConstants.PING_MSG.value:
@@ -107,7 +115,21 @@ class client:
         targetThread = self.__connectedManager.getClientbyIP(requestIP).getThread()
         #targetThread.sendClientMsg(f"{commandConstants.ACCEPTED.value} from {self.__addr}") if valid else targetThread.sendClientMsg(commandConstants.DENIED.value)
 
-    
+    def ping(self):
+        while True:
+            try:
+                msg_length = self.__pingServer.recv(client.HEADER).decode(client.FORMAT)
+                if msg_length:
+                    msg_length = int(msg_length)
+                    msg = self.__pingServer.recv(msg_length).decode(client.FORMAT)
+                    print(f"[{self.__ip}] {msg}")
+                    if msg == commandConstants.PING_MSG.value:
+                        self.write(commandConstants.PONG_MSG.value)
+            except Exception as e:
+                print(e)
+                print("An error occurred or client disconnected")
+                break
+
     def __connectToServer(self):
         self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -120,11 +142,21 @@ class client:
         self.__server.connect((server_ip,server_port))
         self.sendUsername()
 
-        receive_thread = threading.Thread(target=self.receive)
-        receive_thread.start()
+        self.__pingServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__pingServer.connect((server_ip,6060))
 
-        send_thread = threading.Thread(target=self.send)        
-        send_thread.start()
+        #start the gui
+        self.__gui = clientGUI(self,self.__pingServer)
+        self.__gui.run()
+
+        # receive_thread = threading.Thread(target=self.__gui.receive_message)
+        # receive_thread.start()
+
+        # send_thread = threading.Thread(target=self.__gui.send_message)        
+        # send_thread.start()
+
+        # ping_thread = threading.Thread(target=self.ping)
+        # ping_thread.start()
 
         self.sendUsername()
 client = client(f"{input('Enter username: ')}")

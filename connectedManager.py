@@ -36,6 +36,11 @@ class connectedManager:
             if self.__connectedClients[client].getAddress()[0] == ip:
                 return True
         return False
+
+    def checkIfConnectedByUserName(self, userName):
+        for client in self.__connectedClients:
+            if self.__connectedClients[client] .getUserName() == userName:
+                return True
     
     def getUserNamebyIP(self, ip):
         for client in self.__connectedClients:
@@ -43,6 +48,12 @@ class connectedManager:
                 return self.__connectedClients[client].getUserName()
         return None
     
+    def getClientbyUserName(self, userName):
+        for client in self.__connectedClients:
+            if self.__connectedClients[client].getUserName() == userName:
+                return self.__connectedClients[client]
+        return None
+
     def getConnectionbyIP(self, ip):
         for client in self.__connectedClients:
             if self.__connectedClients[client].getAddress()[0] == ip:
