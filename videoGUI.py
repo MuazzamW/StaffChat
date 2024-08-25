@@ -5,11 +5,13 @@ import cv2
 import threading
 import socket
 import pickle
+import struct
+import numpy as np
 
 class VideoChatGUI:
     def __init__(self, root, initiator = False, serverIp = None, serverPort = None):
 
-        self.__port = 7070
+        self.__port = 8080
         self.__ip = socket.gethostbyname(socket.gethostname())
         self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__connection = None
@@ -54,6 +56,7 @@ class VideoChatGUI:
         print(f"[LISTENING] video server is listening on {self.__server.getsockname()}")
         while True:
             self.__connection, addr = self.__server.accept()
+            print(f"[NEW CONNECTION] {addr} connected.")
             #start two threads to send video frames and receive video frames
             send_thread = threading.Thread(target=self.send_video)
             send_thread.daemon = True
@@ -80,55 +83,86 @@ class VideoChatGUI:
 
     def send_video(self):
         # Check if the video should be displayed
-        if self.video_on:
-            ret, frame = self.cap.read()
-            if ret:
-                frame =  cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                frame_data = pickle.dumps(frame)
-                if not self.__initiator:
-                    self.__server.sendall(struct.pack("Q", len(frame_data)))
-                    self.__server.sendall(frame_data)
-                else:
-                    self.__connection.sendall(struct.pack("Q", len(frame_data)))
-                    self.__connection.sendall(frame_data)
-
-        
-        # Schedule the next frame update
-        self.root.after(10, self.update_video)
-    
-    def receive_video(self):
-        data = b""
-        payload_size = struct.calcsize("Q")
+        # while self.video_on:
+        #     ret, frame = self.cap.read()
+        #     if ret:
+        #         frame =  cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        #         frame_data = pickle.dumps(frame)
+        #         if not self.__initiator:
+        #             self.__server.sendall(struct.pack("Q", len(frame_data)))
+        #             self.__server.sendall(frame_data)
+        #         else:
+        #             self.__connection.sendall(struct.pack("Q", len(frame_data)))
+        #             self.__connection.sendall(frame_data)
+        #             print("sent")
 
         while True:
-            while len(data) < payload_size:
-                if not self.__initiator:
-                    packet = self.__server.recv(4 * 1024)
-                else:
-                    packet = self.__connection.recv(4 * 1024)  # 4K buffer size
-                if not packet:
-                    break
-                data += packet
-            if not data:
-                break
-        
-        packed_msg_size = data[:payload_size]
-        data = data[payload_size:]
-        msg_size = struct.unpack("Q", packed_msg_size)[0]
-        while len(data) < msg_size:
+            ret, frame = cap.read()
+            frame = cv2.resize(frame, (640, 480))
+            encoded_frame = cv2.imencode(".jpg", frame)[1].tobytes()
             if not self.__initiator:
-                data += self.__server.recv(4 * 1024)
+                self.__server.send(encoded_frame)
             else:
-                data += self.__connection.recv(4 * 1024)  # 4K buffer size
-        frame_data = data[:msg_size]
-        data = data[msg_size:]
-        frame = pickle.loads(frame_data)
+                self.__connection.send(encoded_frame)
 
-        #display frame onto the label
-        img = Image.fromarray(frame)
-        imgtk = ImageTk.PhotoImage(image=img)
-        self.video_label.imgtk = imgtk
-        self.video_label.configure(image=imgtk)
+
+        # Schedule the next frame update
+        #self.root.after(10, self.send_video)
+    
+    def receive_video(self):
+
+        # data = b""
+        # payload_size = struct.calcsize("Q")
+
+        # while True:
+        #     while len(data) < payload_size:
+        #         if not self.__initiator:
+        #             packet = self.__server.recv(4 * 1024)
+        #         else:
+        #             packet = self.__connection.recv(4 * 1024)  # 4K buffer size
+        #         if not packet:
+        #             break
+        #         data += packet
+        #     if not data:
+        #         break
+        
+        #     packed_msg_size = data[:payload_size]
+        #     data = data[payload_size:]
+        #     msg_size = struct.unpack("Q", packed_msg_size)[0]
+        #     while len(data) < msg_size:
+        #         if not self.__initiator:
+        #             data += self.__server.recv(4 * 1024)
+        #         else:
+        #             data += self.__connection.recv(4 * 1024)  # 4K buffer size
+        #     frame_data = data[:msg_size]
+        #     data = data[msg_size:]
+        #     frame = pickle.loads(frame_data)
+
+        #     #display frame onto the label
+        #     # img = Image.fromarray(frame)
+        #     # imgtk = ImageTk.PhotoImage(image=img)
+        #     # self.video_label.imgtk = imgtk
+        #     # self.video_label.configure(image=imgtk)
+
+        #     cv2.imshow("frame", frame)
+        #     if cv2.waitKey(1) & 0xFF == ord('q'):
+        #         break
+
+        data = b""
+        while True:
+            if not self.__initiator:
+                packet = self.__server.recv(4 * 1024)
+            else:
+                packet = self.__connection.recv(4 * 1024)
+            if not packet:
+                break
+            data += packet
+            img_array = np.frombuffer(data, np.uint8)
+            frame = cv2.imdecode(img_array, 1)
+            cv2.imshow("frame", frame)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+
 
     def toggle_mute(self):
         self.muted = not self.muted
@@ -154,5 +188,4 @@ class VideoChatGUI:
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = VideoChatGUI(root,initiator=False, serverIp="172.16.16.24", serverPort=7070)
-    root.mainloop()
+    app = VideoChatGUI(root,initiator=True)
