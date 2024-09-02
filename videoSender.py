@@ -2,6 +2,7 @@ import cv2
 import socket
 import struct
 import pickle
+import threading
 
 
 class videoSender:
@@ -23,7 +24,9 @@ class videoSender:
         conn, addr = self.__server_socket.accept()
         self.__connection = conn
         print(f"Connected to {addr}")
-        self.__send_video()
+        sendThread = threading.Thread(target=self.__send_video)
+        sendThread.daemon = True
+        sendThread.start()
 
     def __send_video(self):
     # Accept connection from client
