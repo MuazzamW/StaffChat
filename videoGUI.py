@@ -15,6 +15,7 @@ class VideoChatGUI:
         self.__ip = socket.gethostbyname(socket.gethostname())
         self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__connection = None
+        self.__connectionAddr = None
         self.__initiator = initiator
 
 
@@ -23,6 +24,8 @@ class VideoChatGUI:
 
         # Initialize the video capture
         self.cap = cv2.VideoCapture(0)
+        # self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        # self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
         # Create a label to display the video frames
         # self.video_label = Label(self.root)
@@ -56,6 +59,8 @@ class VideoChatGUI:
         print(f"[LISTENING] video server is listening on {self.__server.getsockname()}")
         while True:
             self.__connection, addr = self.__server.accept()
+            self.__connectionAddr = addr
+            print(addr)
             print(f"[NEW CONNECTION] {addr} connected.")
             #start two threads to send video frames and receive video frames
             send_thread = threading.Thread(target=self.send_video)
@@ -82,7 +87,7 @@ class VideoChatGUI:
             
 
     def send_video(self):
-        # Check if the video should be displayed
+        #Check if the video should be displayed
         # while self.video_on:
         #     ret, frame = self.cap.read()
         #     if ret:
@@ -101,9 +106,21 @@ class VideoChatGUI:
             frame = cv2.resize(frame, (640, 480))
             encoded_frame = cv2.imencode(".jpg", frame)[1].tobytes()
             if not self.__initiator:
-                self.__server.send(encoded_frame)
+                print("sending")
+                self.__server.sendall(message)
+                self.__server.sendall(message)
             else:
-                self.__connection.send(encoded_frame)
+                self.__connection.sendall(message)
+                self.__connection.sendall(message)
+
+            
+            # encoded_frame = cv2.imencode(".jpg", frame)[1]
+            # data_array = np.array(encoded_frame)
+            # byte_encode = data_array.tobytes()
+            # if not self.__initiator:
+            #     self.__server.send(byte_encode)
+            # else:
+            #     self.__connection.send(byte_encode)
 
 
         # Schedule the next frame update

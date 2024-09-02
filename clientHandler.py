@@ -3,7 +3,7 @@ import socket
 from commandConstants import commandConstants
 from connectedManager import connectedManager
 import json
-import queue
+import time
 class clientHandler(threading.Thread):
     def __init__(self, server, conn, addr, clientID, connectedManager):
         super().__init__()
@@ -73,6 +73,11 @@ class clientHandler(threading.Thread):
                             msg = f"{self.__userName} has accepted your request" if response == commandConstants.ACCEPTED.value else f"{self.__userName} has denied your request"
                             self.__originalThread.sendMessage(msg)
                             self.__originalThread.sendMessage(commandConstants.ACCEPTED.value if response == commandConstants.ACCEPTED.value else commandConstants.DENIED.value)
+                            if response == commandConstants.ACCEPTED.value:
+                                #wait 3 seconds for videoreceiver to start
+                                time.sleep(3)
+                                
+
                             
                 else:
                     # Wait for the client to send the username

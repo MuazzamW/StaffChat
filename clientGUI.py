@@ -3,6 +3,7 @@ from tkinter import scrolledtext
 import threading
 import socket
 from commandConstants import commandConstants
+from videoSender import videoSender
 
 class clientGUI:
 
@@ -64,6 +65,7 @@ class clientGUI:
                         case commandConstants.ACCEPTED.value:
                             print("Request accepted, starting stream...")
                             #start video and audio stream
+                            videoSender(self.client.getAddr(),8080)
                         case commandConstants.DENIED.value:
                             print("Request denied")
                         case _:
