@@ -5,16 +5,18 @@ import pickle
 
 
 class videoReceiver:
-    def __init__(self):
-        self.__serverIp = "172.16.16.24"
-        self.__serverPort = 8080
+    def __init__(self, serverIp, serverPort):
+        self.__serverIp = serverIp
+        self.__serverPort = serverPort
         self.__client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__connect()
     
     def __connect(self):
         try:
             self.__client_socket.connect((self.__serverIp, self.__serverPort))
-            self.__receive_video()
+            receiveThread = threading.Thread(target=self.__receive_video)
+            receiveThread.daemon = True
+            receiveThread.start()
         except Exception as e:
             print(f"Client encountered an error: {e}")
         finally:

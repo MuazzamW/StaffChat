@@ -4,6 +4,7 @@ from commandConstants import commandConstants
 from connectedManager import connectedManager
 import json
 import time
+from videoReceiver import videoReceiver
 class clientHandler(threading.Thread):
     def __init__(self, server, conn, addr, clientID, connectedManager):
         super().__init__()
@@ -18,6 +19,9 @@ class clientHandler(threading.Thread):
         self.__originalThread = None
 
         print(f"[NEW CONNECTION] {self.__client_address} connected.")
+
+    def getClientIp(self):
+        return self.__client_address[0]
 
     def sendMessage(self, msg, originalThread = None, request = False):
         self.__originalThread = originalThread
@@ -76,7 +80,7 @@ class clientHandler(threading.Thread):
                             if response == commandConstants.ACCEPTED.value:
                                 #wait 3 seconds for videoreceiver to start
                                 time.sleep(3)
-                                
+                                videoReceiver(self.__originalThread.getClientIP(),8080)
 
                             
                 else:
