@@ -9,14 +9,12 @@ class videoReceiver:
         self.__serverIp = serverIp
         self.__serverPort = serverPort
         self.__client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.__connect()
+
     
-    def __connect(self):
+    def connect(self):
         try:
             self.__client_socket.connect((self.__serverIp, self.__serverPort))
-            receiveThread = threading.Thread(target=self.__receive_video)
-            receiveThread.daemon = True
-            receiveThread.start()
+            self.__receive_video()
         except Exception as e:
             print(f"Client encountered an error: {e}")
         finally:
@@ -51,4 +49,5 @@ class videoReceiver:
                 break
 
 if __name__ == "__main__":
-    videoReceiver()
+    receiver = videoReceiver("172.16.16.24",8080)
+    receiver.connect()

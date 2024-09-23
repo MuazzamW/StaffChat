@@ -39,18 +39,10 @@ class server:
             
             self.__id += 1
 
-    def sendMessage(self, client_ip, target_ip, msg):
-        #send message to target by using the target thread's ip
-
-        target_thread = self.__connectedManager.getClientbyIP(target_ip).getThread()
-        target_thread.sendMessage(msg)
-        
-
-    def clientRequest(self, client_ip,target_ip,request_msg):
-        #send request to target by using the target thread's ip
-        self.sendMessage(client_ip, target_ip, request_msg)
-
-        
+            #check if any clients are still connected
+            if self.__connectedManager.returnClients() == {}:
+                print("No clients connected")
+                self.stop()
 
 
     def stop(self):
