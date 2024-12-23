@@ -4,6 +4,8 @@ import threading
 import socket
 from commandConstants import commandConstants
 from videoSender import videoSender
+from videoReceiver import videoReceiver
+import time
 
 class clientGUI:
 
@@ -12,6 +14,7 @@ class clientGUI:
         self.client = client
         self.root = tk.Tk()
         self.root.title("Client Chat")
+        self.__waiting = False
 
         # Output area for the main server messages
         self.server_output = scrolledtext.ScrolledText(self.root, wrap=tk.WORD, width=50, height=20)
@@ -23,11 +26,11 @@ class clientGUI:
         self.message_input.bind("<Return>", self.send_message)
 
         # Output area for the ping server messages
-        #make it uneditable
 
         self.ping_output = scrolledtext.ScrolledText(self.root, wrap=tk.WORD, width=50, height=10)
         self.ping_output.grid(row=2, column=0, padx=10, pady=10)
         self.ping_output.config(state=tk.DISABLED)
+
 
         # Start receiving messages from the server
         self.receive_thread = threading.Thread(target=self.receive_message)
@@ -59,17 +62,32 @@ class clientGUI:
                 if msg_length:
                     msg_length = int(msg_length)
                     msg = self.client.getServer().recv(msg_length).decode(self.client.FORMAT)
-                    self.server_output.insert(tk.END, f"Server: {msg}\n")
-                    self.server_output.yview(tk.END)
-                    match msg:
-                        case commandConstants.ACCEPTED.value:
-                            print("Request accepted, starting stream...")
-                            #start video and audio stream
-                            videoSender(self.client.getAddr(),8080)
-                        case commandConstants.DENIED.value:
-                            print("Request denied")
-                        case _:
-                            pass
+                    if not self.__waiting:
+                        self.server_output.insert(tk.END, f"Server: {msg}\n")
+                        self.server_output.yview(tk.END)
+                        match msg:
+                            case commandConstants.ACCEPTED.value:
+                                self.__waiting = True
+                                print("Request accepted, starting stream...")
+                                #start video and audio stream
+                                sender = videoSender(self.client.getAddr(),8080)
+                                sendingThread = threading.Thread(target=sender.listen)
+                                sendingThread.daemon = True
+                                sendingThread.start()
+                            case commandConstants.DENIED.value:
+                                print("Request denied")
+                            case _:
+                                pass
+                    else:
+                        self.__waiting = False
+                        #receive ip address of the original thread
+                        targetIp = msg
+                        print(f"Received IP: {targetIp}")
+                        time.sleep(3)
+                        vidReceiver = videoReceiver(targetIp,8080)
+                        receivingThread = threading.Thread(target=vidReceiver.connect)
+                        receivingThread.daemon = True
+                        receivingThread.start()
             except Exception as e:
                 self.server_output.insert(tk.END, f"Error: {e}\n")
                 self.server_output.yview(tk.END)

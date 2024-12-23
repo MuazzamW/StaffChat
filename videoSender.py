@@ -2,7 +2,6 @@ import cv2
 import socket
 import struct
 import pickle
-import threading
 
 
 class videoSender:
@@ -15,18 +14,15 @@ class videoSender:
 
         self.__server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__server_socket.bind((self.__server_ip, self.__server_port))
-        self.__listen()
         
 
-    def __listen(self):
+    def listen(self):
         self.__server_socket.listen(1)
         print(f"Listening on {self.__server_ip}:{self.__server_port}")
         conn, addr = self.__server_socket.accept()
         self.__connection = conn
         print(f"Connected to {addr}")
-        sendThread = threading.Thread(target=self.__send_video)
-        sendThread.daemon = True
-        sendThread.start()
+        self.__send_video()
 
     def __send_video(self):
     # Accept connection from client
@@ -54,4 +50,5 @@ class videoSender:
             self.__server_socket.close()
 
 if __name__ == "__main__":
-    videoSender()
+    sender = videoSender("172.16.16.89",8080)
+    sender.listen()
