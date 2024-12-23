@@ -2,9 +2,9 @@ import tkinter as tk
 from tkinter import scrolledtext
 import threading
 import socket
-from commandConstants import commandConstants
-from videoSender import videoSender
-from videoReceiver import videoReceiver
+from Helpers.commandConstants import commandConstants
+from server.videoSender import videoSender
+from server.videoReceiver import videoReceiver
 import time
 
 class clientGUI:
