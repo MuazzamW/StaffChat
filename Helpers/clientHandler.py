@@ -5,6 +5,7 @@ from connectedManager import connectedManager
 import json
 import time
 from videoReceiver import videoReceiver
+from videoSender import videoSender
 class clientHandler(threading.Thread):
     def __init__(self, server, conn, addr, clientID, connectedManager):
         super().__init__()
@@ -78,9 +79,18 @@ class clientHandler(threading.Thread):
                             self.__originalThread.sendMessage(msg)
                             self.__originalThread.sendMessage(commandConstants.ACCEPTED.value if response == commandConstants.ACCEPTED.value else commandConstants.DENIED.value)
                             if response == commandConstants.ACCEPTED.value:
-                                #wait 3 seconds for videoreceiver to start
+                                sender = videoSender(self.__client_address[0], 8080)
+                                print(f"Sending IP: {self.__client_address[0]}") 
+                                self.__originalThread.sendMessage(self.__client_address[0])
+                                senderThread = threading.Thread(target=sender.connect)
+                                senderThread.daemon = True
+                                senderThread.start()
+                                #wait 3 seconds for video receiver to start
                                 time.sleep(3)
-                                videoReceiver(self.__originalThread.getClientIP(),8080)
+                                receiver = videoReceiver(self.__originalThread.getClientIp(),8080)
+                                receiverThread = threading.Thread(target=receiver.connect)
+                                receiverThread.daemon = True
+                                receiverThread.start()
 
                             
                 else:

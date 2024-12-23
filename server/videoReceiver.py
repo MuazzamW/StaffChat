@@ -9,7 +9,7 @@ class videoReceiver:
         self.__serverIp = serverIp
         self.__serverPort = serverPort
         self.__client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        #self.__connect()
+
     
     def connect(self):
         try:
@@ -49,4 +49,5 @@ class videoReceiver:
                 break
 
 if __name__ == "__main__":
-    videoReceiver()
+    receiver = videoReceiver("172.16.16.24",8080)
+    receiver.connect()
