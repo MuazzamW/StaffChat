@@ -82,7 +82,7 @@ class clientHandler(threading.Thread):
                                 sender = videoSender(self.__client_address[0], 8080)
                                 print(f"Sending IP: {self.__client_address[0]}") 
                                 self.__originalThread.sendMessage(self.__client_address[0])
-                                senderThread = threading.Thread(target=sender.connect)
+                                senderThread = threading.Thread(target=sender.listen)
                                 senderThread.daemon = True
                                 senderThread.start()
                                 #wait 3 seconds for video receiver to start

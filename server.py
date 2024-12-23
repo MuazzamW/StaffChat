@@ -36,7 +36,7 @@ class server:
             user.setThread(client_handler)
             client_thread.start()
 
-            
+             
             self.__id += 1
 
             #check if any clients are still connected
