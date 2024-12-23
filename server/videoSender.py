@@ -14,10 +14,9 @@ class videoSender:
 
         self.__server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__server_socket.bind((self.__server_ip, self.__server_port))
-        self.__listen()
         
 
-    def __listen(self):
+    def listen(self):
         self.__server_socket.listen(1)
         print(f"Listening on {self.__server_ip}:{self.__server_port}")
         conn, addr = self.__server_socket.accept()
@@ -51,4 +50,5 @@ class videoSender:
             self.__server_socket.close()
 
 if __name__ == "__main__":
-    videoSender()
+    sender = videoSender("172.16.16.89",8080)
+    sender.listen()
