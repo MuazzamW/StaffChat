@@ -1,7 +1,7 @@
 from enum import Enum
 
 class commandConstants(Enum):
-    DISCONNECT_MSG = "!DISCONNECT_CLIENT"
+    DISCONNECT_MSG = "!DISCONNECT"
     PING_MSG = "!PING"
     PONG_MSG = "!PONG"
     SEND_IP = "!SEND_IP"

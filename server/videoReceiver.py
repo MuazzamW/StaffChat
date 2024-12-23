@@ -49,5 +49,5 @@ class videoReceiver:
                 break
 
 if __name__ == "__main__":
-    receiver = videoReceiver("172.16.16.24",8080)
+    receiver = videoReceiver("172.16.16.89",8080)
     receiver.connect()
