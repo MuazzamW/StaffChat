@@ -1,11 +1,11 @@
 import socket
 import threading
-from commandConstants import commandConstants
-from connectedManager import connectedManager
-from clientHandler import clientHandler
-from user import User
+from Helpers.commandConstants import commandConstants
+from Helpers.connectedManager import connectedManager
+from Helpers.clientHandler import clientHandler
+from Helpers.user import User
 import time
-from streamingServers import pingServer
+from server.streamingServers import pingServer
 class server:
     def __init__(self):
         self.__PORT = 5050

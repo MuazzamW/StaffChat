@@ -1,11 +1,11 @@
 import threading
 import socket
-from commandConstants import commandConstants
-from connectedManager import connectedManager
+from Helpers.commandConstants import commandConstants
+from Helpers.connectedManager import connectedManager
 import json
 import time
-from videoReceiver import videoReceiver
-from videoSender import videoSender
+from server.videoReceiver import videoReceiver
+from server.videoSender import videoSender
 class clientHandler(threading.Thread):
     def __init__(self, server, conn, addr, clientID, connectedManager):
         super().__init__()
@@ -101,7 +101,7 @@ class clientHandler(threading.Thread):
                         userName = self.__client_socket.recv(msg_length).decode(commandConstants.FORMAT.value)
                         # Check if client is already connected to server
                         if self.__connectedManager.checkIfConnectedByUserName(userName):
-                            print(f"client connected")
+                            print(f"client connected {userName}")
                             # Initiate handshake with target client
                             self.clientConnection(userName)
                         else:

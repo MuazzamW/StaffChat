@@ -1,7 +1,7 @@
 #streamingServer is the parent class that class that the ping, audio and video server classes inherit from
 import threading
 import socket
-from commandConstants import commandConstants
+from Helpers.commandConstants import commandConstants
 import time
 import cv2 as cv
 

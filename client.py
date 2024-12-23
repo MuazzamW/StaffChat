@@ -1,11 +1,10 @@
 import socket
-from commandConstants import commandConstants
+from Helpers.commandConstants import commandConstants
 import threading
-from connectedManager import connectedManager
+from Helpers.connectedManager import connectedManager
 import json
-from inputThread import inputThread
 import time
-from clientGUI import clientGUI
+from GUI.clientGUI import clientGUI
 class client:
 
     #global variables
