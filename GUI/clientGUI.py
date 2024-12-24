@@ -5,6 +5,7 @@ import socket
 from Helpers.commandConstants import commandConstants
 from server.videoSender import videoSender
 from server.videoReceiver import videoReceiver
+from server.audioStreamer import audioStreamer
 import time
 
 class clientGUI:
@@ -74,6 +75,13 @@ class clientGUI:
                                 sendingThread = threading.Thread(target=sender.listen)
                                 sendingThread.daemon = True
                                 sendingThread.start()
+
+                                #start audio
+                                audioSender = audioStreamer(self.client.getAddr(),9090)
+                                audioThread = threading.Thread(target=audioSender.sendAudio)
+                                audioThread.daemon = True
+                                audioThread.start()
+                                
                             case commandConstants.DENIED.value:
                                 print("Request denied")
                             case _:

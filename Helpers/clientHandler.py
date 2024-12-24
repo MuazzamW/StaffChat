@@ -92,6 +92,19 @@ class clientHandler(threading.Thread):
                                 receiverThread.daemon = True
                                 receiverThread.start()
 
+                                #send audio
+                                # audioStreamer = audioStreamer(self.__client_address[0], 9090)
+                                # audioSenderThread = threading.Thread(target=audioStreamer.sendAudio)
+                                # audioSenderThread.daemon = True
+                                # audioSenderThread.start()
+
+                                #receive audio
+                                audioReceiver = audioReceiver(self.__originalThread.getClientIp(), 9090)
+                                audioReceiverThread = threading.Thread(target=audioReceiver.receive_audio)
+                                audioReceiverThread.daemon = True
+                                audioReceiverThread.start()
+
+
                             
                 else:
                     # Wait for the client to send the username
