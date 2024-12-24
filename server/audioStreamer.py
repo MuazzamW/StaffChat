@@ -1,13 +1,16 @@
 import pyaudio
 import socket
+import numpy as np
 
 class audioStreamer:
     def __init__(self, serverIp, serverPort):
         self.__FORMAT = pyaudio.paInt16
-        self.__CHANNELS = 2
+        self.__CHANNELS = 1
         self.__RATE = 44100
         self.__CHUNK = 1024   
         self.p = pyaudio.PyAudio()
+        self.client_socket = None
+        self.server_socket = None
 
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.bind((serverIp, serverPort))
@@ -17,17 +20,28 @@ class audioStreamer:
         print(f"Client connected: {self.client_address}")
 
         # Initialize audio stream
-        self.sendAudio()
+        #self.sendAudio()
         
+    def normalize_data(self,data):
+        audio_data = np.frombuffer(data, dtype=np.int16)
+        max_val = np.max(np.abs(audio_data))
+        if max_val > 0:
+            audio_data = (audio_data / max_val * 32767).astype(np.int16)
+        return audio_data.tobytes()
+
     def sendAudio(self):
         audio = pyaudio.PyAudio()
-        stream = audio.open(format=self.__FORMAT, channels=self.__CHANNELS, rate=self.__RATE, input=True, frames_per_buffer=self.__CHUNK)
+        stream = audio.open(format=self.__FORMAT,
+                             channels=self.__CHANNELS, 
+                             rate=self.__RATE, input=True, 
+                             frames_per_buffer=self.__CHUNK)
         try:
             while True:
                 # Read audio data
                 data = stream.read(self.__CHUNK, exception_on_overflow=False)
                 # Send audio data to the client
-                self.__client_socket.sendall(data)
+                #normalized_data = self.normalize_data(data)
+                self.client_socket.sendall(data)
         except Exception as e:
             print(f"Error: {e}")
         finally:
@@ -35,8 +49,8 @@ class audioStreamer:
             stream.stop_stream()
             stream.close()
             audio.terminate()
-            self.__client_socket.close()
-            self.__server_socket.close()
+            self.client_socket.close()
+            self.server_socket.close()
 
 
 if __name__ == "__main__":

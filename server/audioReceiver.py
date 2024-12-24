@@ -19,7 +19,11 @@ class audioReceiver:
 
         # Initialize audio stream
         audio = pyaudio.PyAudio()
-        stream = audio.open(format=self.__FORMAT, channels=self.__CHANNELS, rate=self.__RATE, output=True, frames_per_buffer=self.__CHUNK)
+        stream = audio.open(format=self.__FORMAT,
+                            channels=self.__CHANNELS,
+                            rate=self.__RATE, 
+                            output=True, 
+                            frames_per_buffer=self.__CHUNK)
 
         try:
             while True:
