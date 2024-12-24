@@ -4,12 +4,13 @@ import socket
 class audioReceiver:
     def __init__(self, serverIp, serverPort):
         self.__FORMAT = pyaudio.paInt16
-        self.__CHANNELS = 2
+        self.__CHANNELS = 1
         self.__RATE = 44100
         self.__CHUNK = 1024
         self.__serverIp = serverIp
         self.__serverPort = serverPort
 
+        print("Audio Receiver started")
         self.receive_audio()
 
     def receive_audio(self):
@@ -38,5 +39,5 @@ class audioReceiver:
             audio.terminate()
             client_socket.close()
 
-if __name__ == "main":
-    receiver = audioReceiver("172.16.16.89", 9090)
+if __name__ == "__main__":
+    receiver = audioReceiver("172.16.16.89", 9090) 
