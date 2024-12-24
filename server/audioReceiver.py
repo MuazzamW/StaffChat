@@ -11,7 +11,7 @@ class audioReceiver:
         self.__serverPort = serverPort
 
         print("Audio Receiver started")
-        self.receive_audio()
+        #self.receive_audio()
 
     def receive_audio(self):
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

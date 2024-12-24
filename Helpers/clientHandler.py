@@ -6,6 +6,8 @@ import json
 import time
 from server.videoReceiver import videoReceiver
 from server.videoSender import videoSender
+from server.audioStreamer import audioStreamer
+from server.audioReceiver import audioReceiver
 class clientHandler(threading.Thread):
     def __init__(self, server, conn, addr, clientID, connectedManager):
         super().__init__()
@@ -99,8 +101,8 @@ class clientHandler(threading.Thread):
                                 # audioSenderThread.start()
 
                                 #receive audio
-                                audioReceiver = audioReceiver(self.__originalThread.getClientIp(), 9090)
-                                audioReceiverThread = threading.Thread(target=audioReceiver.receive_audio)
+                                audioRec = audioReceiver(self.__originalThread.getClientIp(), 9090)
+                                audioReceiverThread = threading.Thread(target=audioRec.receive_audio)
                                 audioReceiverThread.daemon = True
                                 audioReceiverThread.start()
 
