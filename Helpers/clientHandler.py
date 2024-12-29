@@ -97,10 +97,10 @@ class clientHandler(threading.Thread):
                                 receiverThread.start()
 
                                 #send audio
-                                # audioStreamer = audioStreamer(self.__client_address[0], 9090)
-                                # audioSenderThread = threading.Thread(target=audioStreamer.sendAudio)
-                                # audioSenderThread.daemon = True
-                                # audioSenderThread.start()
+                                audioStreamer = audioStreamer(self.__client_address[0], 9090)
+                                audioSenderThread = threading.Thread(target=audioStreamer.sendAudio)
+                                audioSenderThread.daemon = True
+                                audioSenderThread.start()
 
                                 #receive audio
                                 audioRec = audioReceiver(self.__originalThread.getClientIp(), self.__config["audio_sender_port"])

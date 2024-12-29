@@ -1,5 +1,5 @@
 {
-    "server_ip": "172.16.16.89",
+    "server_ip": "Ip of server PC here",
     "server_port": 5050,
     "ping_server_port": 6060,
     "video_sender_port": 8080,
