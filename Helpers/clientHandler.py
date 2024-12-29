@@ -21,6 +21,8 @@ class clientHandler(threading.Thread):
         self.__waiting_response = False
         self.__originalThread = None
 
+        self.__config = json.load(open("config.json"))
+
         print(f"[NEW CONNECTION] {self.__client_address} connected.")
 
     def getClientIp(self):
@@ -81,7 +83,7 @@ class clientHandler(threading.Thread):
                             self.__originalThread.sendMessage(msg)
                             self.__originalThread.sendMessage(commandConstants.ACCEPTED.value if response == commandConstants.ACCEPTED.value else commandConstants.DENIED.value)
                             if response == commandConstants.ACCEPTED.value:
-                                sender = videoSender(self.__client_address[0], 8080)
+                                sender = videoSender(self.__client_address[0], self.__config["video_sender_port"])
                                 print(f"Sending IP: {self.__client_address[0]}") 
                                 self.__originalThread.sendMessage(self.__client_address[0])
                                 senderThread = threading.Thread(target=sender.listen)
@@ -89,7 +91,7 @@ class clientHandler(threading.Thread):
                                 senderThread.start()
                                 #wait 3 seconds for video receiver to start
                                 time.sleep(3)
-                                receiver = videoReceiver(self.__originalThread.getClientIp(),8080)
+                                receiver = videoReceiver(self.__originalThread.getClientIp(),self.__config["video_sender_port"])
                                 receiverThread = threading.Thread(target=receiver.connect)
                                 receiverThread.daemon = True
                                 receiverThread.start()
@@ -101,7 +103,7 @@ class clientHandler(threading.Thread):
                                 # audioSenderThread.start()
 
                                 #receive audio
-                                audioRec = audioReceiver(self.__originalThread.getClientIp(), 9090)
+                                audioRec = audioReceiver(self.__originalThread.getClientIp(), self.__config["audio_sender_port"])
                                 audioReceiverThread = threading.Thread(target=audioRec.receive_audio)
                                 audioReceiverThread.daemon = True
                                 audioReceiverThread.start()
@@ -155,8 +157,5 @@ class clientHandler(threading.Thread):
         #send only the message from client_info to the target client
         target_thread.sendMessage(client_info, self,request=True)   
         
-        
-
-    
     def sendClientMsg(self, msg):
         return self.sendMessage(msg)

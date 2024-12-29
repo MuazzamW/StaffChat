@@ -1,14 +1,17 @@
+import json
 import socket
 import threading
-from Helpers.commandConstants import commandConstants
 from Helpers.connectedManager import connectedManager
 from Helpers.clientHandler import clientHandler
 from Helpers.user import User
-import time
 from server.streamingServers import pingServer
+
 class server:
     def __init__(self):
-        self.__PORT = 5050
+        #read port from config.json
+        self.__config = json.load(open("config.json"))
+        self.__PORT = self.__config["server_port"]
+        print(self.__PORT)
         self.__IP = socket.gethostbyname(socket.gethostname())
         self.__ADDR = (self.__IP, self.__PORT)
         self.__CLIENTS = {}
@@ -16,7 +19,7 @@ class server:
         self.__server.bind(self.__ADDR)
         self.__id = 1
         self.__connectedManager = connectedManager()
-        self.__pingServer = pingServer(6060, self.__connectedManager)
+        self.__pingServer = pingServer(self.__config["ping_server_port"], self.__connectedManager)
 
     def start(self):
         #start ping server on a separate thread

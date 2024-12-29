@@ -3,7 +3,6 @@ import threading
 import socket
 from Helpers.commandConstants import commandConstants
 import time
-import cv2 as cv
 
 class streamingServer(threading.Thread):
     def __init__(self, port, connectedManager):

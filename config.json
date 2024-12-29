@@ -1,9 +1,8 @@
 {
-    "server-config": [
-        {
-            "server_host": "172.16.16.81",
-            "server_port": 5050
-        }
-    ]
+    "server_ip": "172.16.16.89",
+    "server_port": 5050,
+    "ping_server_port": 6060,
+    "video_sender_port": 8080,
+    "audio_sender_port": 9090 
 }
 

@@ -1,16 +1,19 @@
 import tkinter as tk
 from tkinter import scrolledtext
 import threading
-import socket
 from Helpers.commandConstants import commandConstants
 from server.videoSender import videoSender
 from server.videoReceiver import videoReceiver
 from server.audioStreamer import audioStreamer
 import time
+import json
 
 class clientGUI:
 
     def __init__(self, client, pingserver):
+
+        self.__config = json.load(open("config.json"))
+
         self.pingserver = pingserver
         self.client = client
         self.root = tk.Tk()
@@ -71,13 +74,13 @@ class clientGUI:
                                 self.__waiting = True
                                 print("Request accepted, starting stream...")
                                 #start video and audio stream
-                                sender = videoSender(self.client.getAddr(),8080)
+                                sender = videoSender(self.client.getAddr(),self.__config["video_sender_port"])
                                 sendingThread = threading.Thread(target=sender.listen)
                                 sendingThread.daemon = True
                                 sendingThread.start()
 
                                 #start audio
-                                audioSender = audioStreamer(self.client.getAddr(),9090)
+                                audioSender = audioStreamer(self.client.getAddr(),self.__config["audio_sender_port"])
                                 audioThread = threading.Thread(target=audioSender.sendAudio)
                                 audioThread.daemon = True
                                 audioThread.start()
@@ -92,7 +95,7 @@ class clientGUI:
                         targetIp = msg
                         print(f"Received IP: {targetIp}")
                         time.sleep(3)
-                        vidReceiver = videoReceiver(targetIp,8080)
+                        vidReceiver = videoReceiver(targetIp,self.__config["video_sender_port"])
                         receivingThread = threading.Thread(target=vidReceiver.connect)
                         receivingThread.daemon = True
                         receivingThread.start()
